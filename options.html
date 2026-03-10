@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiMic Extension Options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>MiMic Extension Settings</h1>
+      <p class="subtitle">Manage your approved YouTube channels</p>
+    </header>
+    
+    <main>
+      <section class="channels-section">
+        <h2>Approved Channels</h2>
+        <p class="description">
+          Enter YouTube channel handles below, one per line. Each handle must start with and contain only one instance of <code>/@</code>.
+          <br />
+          Missing your favorite commentator? Send us a note at <a href="mailto:dissemiotic@gmail.com">dissemiotic@gmail.com</a>!
+        </p>
+        
+        <div class="textarea-wrapper">
+          <textarea 
+            id="channelsList" 
+            rows="15" 
+            placeholder="/@channelname1&#10;/@channelname2&#10;/@channelname3"
+            spellcheck="false"
+          ></textarea>
+        </div>
+        
+        <div class="validation-message" id="validationMessage"></div>
+        
+        <div class="button-group">
+          <button id="saveButton" class="btn btn-primary">Save Changes</button>
+          <button id="resetButton" class="btn btn-secondary">Reset to Defaults</button>
+        </div>
+        
+        <div class="status-message" id="statusMessage"></div>
+      </section>
+      
+      <section class="info-section">
+        <h3>How to find a channel handle</h3>
+        <ol>
+          <li>Visit the YouTube channel page</li>
+          <li>Look at the URL - it should be in the format: <code>youtube.com/@channelname</code></li>
+          <li>Copy the handle including the <code>/@</code> prefix</li>
+          <li>Paste it into the list above</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+  
+  <script src="options.js"></script>
+</body>
+</html>
