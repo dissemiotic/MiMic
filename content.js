@@ -66,9 +66,13 @@ async function extractVideoMetadata(url) {
   }
 
   // Extract channel URL from itemprop link
-  const urlEl = doc.querySelector('link[itemprop="url"]');
+  const urlEl = doc.querySelector('link[itemprop="url"][href*="http"][href*="@"]');
   if (urlEl) {
     mimic_author_url = urlEl.getAttribute('href');
+    
+    if (!mimic_author_url.includes('https')) {
+      mimic_author_url = mimic_author_url.replace('http://', 'https://');
+    }
     console.log(`Extracted mimic_author_url: ${mimic_author_url}`);
   }
 }
