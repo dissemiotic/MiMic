@@ -359,6 +359,30 @@ function showDialog() {
     }
   });
 
+  // Check autoplay state and conditionally append a warning.
+  // The autoplay toggle button is a <button data-tooltip-target-id="ytp-autonav-toggle-button">;
+  // the aria-checked attribute lives on its inner <div class="ytp-autonav-toggle-button"> child.
+  const autoplayToggleDiv = document.querySelector('.ytp-autonav-toggle-button[aria-checked]');
+  const isAutoplayOff = autoplayToggleDiv
+    ? autoplayToggleDiv.getAttribute('aria-checked') === 'false'
+    : false;
+
+  if (isAutoplayOff) {
+    const autoplayWarning = document.createElement('p');
+    autoplayWarning.textContent = 'WARNING: Turn on autoplay please. TY!';
+    autoplayWarning.style.cssText = `
+      margin-top: 18px;
+      margin-bottom: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fbbf24;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      letter-spacing: 0.3px;
+    `;
+    autoplayWarning.appendChild(document.createElement('br'));
+    dialog.appendChild(autoplayWarning);
+  }
+
   // Assemble dialog
   buttonContainer.appendChild(yesButton);
   buttonContainer.appendChild(noButton);

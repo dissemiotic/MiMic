@@ -1,6 +1,6 @@
 # MiMic - The YouTube Horror Co-Viewer
 
-Our Chromium extension lets you co-view digital horror, analog horror, etc., YouTube projects that your favorite horror commentators cover. When watching a video from one of the curated channels - or from a list of your own! - MiMic finds the appropriate YouTube source link in the description and offers to open it in a small, muted, and optionally minimized window.
+Our Chromium extension lets you watch digital horror, analog horror, etc., YouTube projects that your favorite horror commentators cover alongside their witty barbs. When viewing a video from one of the curated channels - or from a list of your own! - MiMic finds the appropriate YouTube source link in the description and offers to open it in a small, muted, and optionally minimized window.
 
 ---
 
