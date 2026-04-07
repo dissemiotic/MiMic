@@ -20,7 +20,7 @@ Note that we decided to rely on YouTube video metadata versus YouTube API endpoi
 - **User Control**: The confirmation dialog gives you control over whether the MiMic video is muted or minimized on a per-video basis.
 - **Persistent Playback**: The MiMic video will not automatically pause when the window is minimized or loses focus.
 - **Respects User Input**: Deliberately pausing, playing, or muting the MiMic video via the YouTube UI works as expected and is not overridden by the extension.
-- **Handles All Link Types**: Correctly processes variations of `watch?v=`, `/playlist/`, `youtu.be/`, and `@channel` links found in YouTube video descriptions from select accounts.
+- **Handles All Link Types**: Correctly processes variations of `watch?v=`, `/playlist/`, `youtu.be/`, `/c/`, `/user/`, `@channel`, and vanity links found in YouTube video descriptions from select accounts.
 - **Finetuned Source Material Detection Process**: Accurately singles out the subject matter from a YouTube video description. Commentators can also include a special indicator, `⧸`, before a link in the description to preselect the source material to open!
 
 ## Installation
@@ -85,3 +85,5 @@ The following channels are approved by default. This list can be edited at any t
 | `/@gearisko` | [Gearisko](https://www.youtube.com/@gearisko) |
 | `/@jaybird160` | [Jaybird160](https://www.youtube.com/@jaybird160) |
 | `/@nightmaremasterclass` | [Nightmaremasterclass](https://www.youtube.com/@nightmaremasterclass) |
+| `/@gr33nmansam` | [Gr33nmansam](https://www.youtube.com/@gr33nmansam) |
+| `/@drippyghost` | [Drippyghost](https://www.youtube.com/@drippyghost) |
