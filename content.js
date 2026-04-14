@@ -18,7 +18,7 @@ let hasActivated = false; // Track if we've already shown dialog for current vid
 let isProcessing = false;
 
 // Approved channel list (populated from storage; defaults defined in options.js)
-let APPROVED_CHANNELS = [];
+let APPROVED_CHANNELS = [];                                     
 
 // Disapproved channel list - note: this isn't a judgment on the quality of these channels' videos or the channel creators' actions/dispositions/whatever, just if the listed handles serve as (1) other YT creators who commonly contribute to the production of YT horror commentary videos but do little of it themselves on their own corner of the platform, (2) secondary channels that often get linked to in the creators' video descriptions, OR (3) if the creator uses the handle to comment on YT Horror while tending to not link to the original source material. these three kinds cause the extension to essentially malfunction.
 const DISAPPROVED_CHANNELS = new Set([
@@ -37,12 +37,16 @@ const DISAPPROVED_CHANNELS = new Set([
   '/@calebfinn',
   '/@sodajump',
   '/@harruwu',
-  '/@therealmrmirage'
+  '/@therealmrmirage',
+  '/@projectemortal',
+  '/@emortalmarcusvods',
+  '/@chrocilfer',
+  '/@suwuonyt',
+  '/@nationalfreak'
 ]);
 
 const DISAPPROVED_OTHER_YT = new Set([
 'https://www.youtube.com/channel/UCVHTYS0EIbTWfK-fVFo2NEg',
-'https://www.youtube.com/Sunflower41XD',
 'https://www.youtube.com/channel/UC8L0M5FgnBxSBTLeqAn0-xA'
 ]);
 
@@ -127,9 +131,6 @@ function openMimicWindow(shouldMute = true, shouldMinimize = true) {
 
 // Step 5: Show dialog overlay
 function showDialog() {
-  // Mark that we've shown the dialog for this video
-  hasActivated = true;
-
   // Create full-screen overlay for click detection
   const overlay = document.createElement('div');
   overlay.id = 'mimic-overlay';
@@ -191,11 +192,12 @@ function showDialog() {
   link.target = '_blank'; // Optional: open in new tab
 
   const yt_arrow = document.createElement('img');
-  yt_arrow.src = chrome.runtime.getURL('images/yt_favicon_ringo2.png');
-
+  yt_arrow.src = chrome.runtime.getURL('/images/yt_favicon_ringo2.png');
+  yt_arrow.style.marginRight = '2px';
+  
   const author_link = document.createElement('a');
   author_link.href = mimic_author_url + '?sub_confirmation=1';
-  author_link.append(yt_arrow, '\u00A0', mimic_author);
+  author_link.append(yt_arrow, mimic_author);
   author_link.target = '_blank'; // Optional: open in new tab
 
   // Assemble the message
@@ -367,9 +369,9 @@ function showDialog() {
     ? autoplayToggleDiv.getAttribute('aria-checked') === 'false'
     : false;
 
-  if (isAutoplayOff) {
+  if (!isAutoplayOff) {
     const autoplayWarning = document.createElement('p');
-    autoplayWarning.textContent = 'WARNING: Turn on autoplay please. TY!';
+    autoplayWarning.textContent = 'WARNING: Turn off autoplay please and refresh the video. TY!';
     autoplayWarning.style.cssText = `
       margin-top: 18px;
       margin-bottom: 0;
@@ -632,26 +634,31 @@ async function processDescription() {
   processStep4();
 }
 
-// Shared helper: fetch metadata for mimic_url and show the confirmation dialog.
+// Shared helper: fetch metadata for mimic_url, then either auto-open or show dialog.
 async function finishWithVideo() {
   await extractVideoMetadata(mimic_url).catch(err => {
     console.error(`[MiMic] extractVideoMetadata failed for ${mimic_url}:`, err);
     deactivate();
   });
-  showDialog();
+  chrome.storage.sync.get(['automateOpens'], (result) => {
+    hasActivated = true;
+    if (result.automateOpens === true) {
+      console.log('[MiMic] Automation active — skipping dialog');
+      openMimicWindow();
+    } else {
+      showDialog();
+    }
+  });
 }
 
-// Shared helper: check fetched page HTML against approved/disapproved channel lists.
-// allowOwn = true exempts 'dissemiotic' from the approved-channel block (section C).
-// Returns true if the URL was blocked so the caller can return immediately.
-function checkChannelLists(html, urlToRemove, allowOwn = false) {
+function checkChannelLists(html, urlToRemove,) {
   const channelCheck = /"canonicalBaseUrl":"\/\@([A-Za-z0-9_\-.]+)"/;
   const channelMatch = html.match(channelCheck);
   if (!channelMatch) return false;
   const channelMatchURL = '/@' + channelMatch[1].toLowerCase();
   console.log(`[MiMic] Assembled channel URL: ${channelMatchURL}`);
   const isApproved = APPROVED_CHANNELS.includes(channelMatchURL) &&
-    (!allowOwn || !channelMatchURL.includes('dissemiotic'));
+    !channelMatchURL.includes('/@dissemiotic');
   if (isApproved || DISAPPROVED_CHANNELS.has(channelMatchURL)) {
     console.log('[MiMic] Channel is on approved/disapproved list, trying next URL');
     tryNextUrl(urlToRemove);
@@ -716,9 +723,9 @@ async function processStep4() {
     // A) Process handle URLs
     if (mimic_url.includes('/@')) {
       original_mimic_url = mimic_url;
-      if (mimic_url.includes('/videos')) {
-        mimic_url = mimic_url.replace('/videos', '');
-      }
+      const _u = new URL(mimic_url);
+      const _segs = _u.pathname.split('/').filter(Boolean);
+      if (_segs.length > 1) mimic_url = _u.origin + '/' + _segs[0];
       if (mimic_url === account_url && !mimic_url.includes('dissemiotic')) {
         // Remove this URL and try next
         tryNextUrl(mimic_url);
@@ -815,14 +822,17 @@ async function processStep4() {
 
     // D) Process channel URLs
     if (mimic_url.includes('/channel/')) {
+      // Convert /c/ or /C/ to /@
+      if (mimic_url.includes('/c/') || mimic_url.includes('/C/')) {
+        mimic_url = mimic_url.replace('/c/', '/@').replace('/C/', '/@');
+      }
       original_mimic_url = mimic_url;
+
+      const _u = new URL(mimic_url );
+      const _segs = _u.pathname.split('/').filter(Boolean);
+      if (_segs.length > 2) mimic_url = _u.origin + '/' + _segs[0] + '/' + _segs[1];
+
       // Convert to UU
-      if (mimic_url.includes('/join')) {
-        mimic_url = mimic_url.replace('/join', '');
-      }
-      if (mimic_url.includes('/videos')) {
-        mimic_url = mimic_url.replace('/videos', '');
-      }
       const urlObj = new URL(mimic_url);
       const channelResponse = await fetch(urlObj.href);
       const channelHTML = await channelResponse.text();
@@ -837,20 +847,57 @@ async function processStep4() {
         return;
     }
 
-    // E) Process /shorts/ URLs
+    // E) Process /user/ URLs
+    if (mimic_url.includes('/user/')) {
+      original_mimic_url = mimic_url;
+
+      const urlObj = new URL(mimic_url);
+      const _segs = urlObj.pathname.split('/').filter(Boolean);
+      if (_segs.length > 2) mimic_url = urlObj.origin + '/' + _segs[0] + '/' + _segs[1];
+
+      // Convert to UU
+      const channelResponse = await fetch(urlObj.href);
+      const channelHTML = await channelResponse.text();
+
+      if (checkChannelLists(channelHTML, original_mimic_url)) return;
+      console.log('[MiMic] Channel URL does not match any channel handles, passing through to playlist extraction');
+      const playlistHtml = await fetchChannelPlaylist(urlObj);
+      if (!await extractFirstPlaylistVideo(playlistHtml, channel_id)) {
+        console.log('[MiMic] Could not extract video ID from channel strangely, deactivating');
+        deactivate();
+      }
+      return;
+    }
+
+    // F) Process /shorts/ URLs
     if (mimic_url.includes('/shorts/')) {
       tryNextUrl(mimic_url);
       return;
     }
-    // F) URL doesn't match any criteria, last attempt before trying next
+
+    // G) URL doesn't match any criteria, last attempt before trying next
     const vanityURL = mimic_url.replace('.com/', '.com/@');
-    if ((await fetch(vanityURL, { method: 'HEAD' }).then(resp => resp.status === 200).catch(() => false))) {
+    const vanityStatus = await fetch(vanityURL, { method: 'HEAD' })
+      .then(resp => resp.status)
+      .catch(() => null);
+
+    if (vanityStatus === 200) {
       extract0 = extract0.filter(url => url !== mimic_url);
       mimic_url = vanityURL;
       processStep4();
+    } else if ([301, 302, 303, 307, 308].includes(vanityStatus)) {
+      const vanityURL2 = vanityURL.replace('.com/@', '.com/');
+      if ((await fetch(vanityURL2, { method: 'HEAD' }).then(resp => resp.status === 200).catch(() => false))) {
+        extract0 = extract0.filter(url => url !== mimic_url);
+        mimic_url = vanityURL2;
+        processStep4();
+      } else {
+        tryNextUrl(mimic_url);
+      }
     } else {
       tryNextUrl(mimic_url);
     }
+
   } catch (error) {
     console.error('[MiMic] Error in Step 4:', error);
     deactivate();
@@ -892,7 +939,10 @@ const DEFAULT_CHANNELS = [
   '/@abashortfilms',
   '/@gearisko',
   '/@jaybird160',
-  '/@nightmaremasterclass'
+  '/@nightmaremasterclass',
+  '/@gr33nmansam',
+  '/@drippyghost',
+  '/@gear2nd'
 ];
 
 // Load approved channels from storage

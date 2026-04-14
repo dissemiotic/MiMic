@@ -35,23 +35,41 @@ const DEFAULT_CHANNELS = [
   '/@abashortfilms',
   '/@gearisko',
   '/@jaybird160',
-  '/@nightmaremasterclass'
+  '/@nightmaremasterclass',
+  '/@gr33nmansam',
+  '/@drippyghost',
+  '/@gear2nd'
 ];
 
 // DOM elements
+const automateToggle = document.getElementById('automateToggle');
 const channelsList = document.getElementById('channelsList');
 const saveButton = document.getElementById('saveButton');
 const resetButton = document.getElementById('resetButton');
 const validationMessage = document.getElementById('validationMessage');
 const statusMessage = document.getElementById('statusMessage');
 
-// Load saved channels on page load
-document.addEventListener('DOMContentLoaded', loadChannels);
+// Load saved settings on page load
+document.addEventListener('DOMContentLoaded', () => {
+  loadChannels();
+  loadAutomation();
+});
 
 // Event listeners
 saveButton.addEventListener('click', saveChannels);
 resetButton.addEventListener('click', resetToDefaults);
 channelsList.addEventListener('input', validateInput);
+
+// Load automation toggle from storage
+function loadAutomation() {
+  chrome.storage.sync.get(['automateOpens'], (result) => {
+    automateToggle.checked = result.automateOpens === true;
+  });
+}
+
+automateToggle.addEventListener('change', () => {
+  chrome.storage.sync.set({ automateOpens: automateToggle.checked });
+});
 
 // Load channels from storage
 function loadChannels() {

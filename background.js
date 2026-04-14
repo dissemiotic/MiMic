@@ -69,10 +69,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           console.log('[MiMic] Minimizing after', minimizeDelay, 'ms');
           setTimeout(() => {
             chrome.windows.update(windowId, { state: 'minimized' }, () => {
+              if (chrome.runtime.lastError) {
+                console.log('[MiMic] Could not minimize window (already closed):', chrome.runtime.lastError.message);
+                return;
+              }
               console.log('[MiMic] Window minimized');
               
               // After minimizing the new window, maximize the original window to 100%
               chrome.windows.update(originalWindowId, { state: 'maximized' }, () => {
+                if (chrome.runtime.lastError) {
+                  console.log('[MiMic] Could not maximize original window:', chrome.runtime.lastError.message);
+                  return;
+                }
                 console.log('[MiMic] Original window maximized to 100%');
               });
             });
