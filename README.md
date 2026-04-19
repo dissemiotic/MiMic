@@ -87,3 +87,4 @@ The following channels are approved by default. This list can be edited at any t
 | `/@nightmaremasterclass` | [Nightmaremasterclass](https://www.youtube.com/@nightmaremasterclass) |
 | `/@gr33nmansam` | [Gr33nmansam](https://www.youtube.com/@gr33nmansam) |
 | `/@drippyghost` | [Drippyghost](https://www.youtube.com/@drippyghost) |
+| `/@gear2nd` | [Gear ²](https://www.youtube.com/@gear2nd) |
