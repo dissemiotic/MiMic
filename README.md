@@ -22,6 +22,7 @@ Note that we decided to rely on YouTube video metadata versus YouTube API endpoi
 - **Respects User Input**: Deliberately pausing, playing, or muting the MiMic video via the YouTube UI works as expected and is not overridden by the extension.
 - **Handles All Link Types**: Correctly processes variations of `watch?v=`, `/playlist/`, `youtu.be/`, `/c/`, `/user/`, `@channel`, and vanity links found in YouTube video descriptions from select accounts.
 - **Finetuned Source Material Detection Process**: Accurately singles out the subject matter from a YouTube video description. Commentators can also include a special indicator, `⧸`, before a link in the description to preselect the source material to open!
+- **Autopilot mode (available via Options in extension's menu): Leave the door open ...
 
 ## Installation
 
