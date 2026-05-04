@@ -31,10 +31,7 @@ const DISAPPROVED_CHANNELS = new Set([
   '/@elvandubz',
   '/@creeppodcast',
   '/@theweirdbible',
-  '/@aydin_makes_things',
-  '/@something_sinister',
   '/@all-bonesjones',
-  '/@calebfinn',
   '/@sodajump',
   '/@harruwu',
   '/@therealmrmirage',
@@ -42,12 +39,14 @@ const DISAPPROVED_CHANNELS = new Set([
   '/@emortalmarcusvods',
   '/@chrocilfer',
   '/@suwuonyt',
-  '/@nationalfreak'
+  '/@nationalfreak',
+  '@HadenLeeF'
 ]);
 
 const DISAPPROVED_OTHER_YT = new Set([
 'https://www.youtube.com/channel/UCVHTYS0EIbTWfK-fVFo2NEg',
-'https://www.youtube.com/channel/UC8L0M5FgnBxSBTLeqAn0-xA'
+'https://www.youtube.com/channel/UC8L0M5FgnBxSBTLeqAn0-xA',
+'https://www.youtube.com/channel/UCkm-PWprSLIjMb21hwv2AGw'
 ]);
 
 // Helper function to extract metadata from HTML string
@@ -78,6 +77,16 @@ async function extractVideoMetadata(url) {
       mimic_author_url = mimic_author_url.replace('http://', 'https://');
     }
     console.log(`Extracted mimic_author_url: ${mimic_author_url}`);
+  }
+}
+
+// Helper function to check URL status with HEAD request
+async function checkUrlStatus(url) {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.status;
+  } catch (error) {
+    return 0;
   }
 }
 
@@ -671,8 +680,8 @@ function checkChannelLists(html, urlToRemove,) {
 // fetch the channel's upload playlist page, and return the HTML.
 async function fetchChannelPlaylist(urlObj) {
   channel_id = urlObj.pathname.split('/channel/')[1].split('/')[0];
-  channel_id = channel_id.replace(/^(UV|UC)/, 'UU');
-  const playlistUrl = `https://www.youtube.com/watch?v=&list=${channel_id}`;
+  channel_id = channel_id.replace(/^(UV|UC)/, 'UULF');
+  const playlistUrl = `https://www.youtube.com/playlist?list=${channel_id}`;
   return (await fetch(playlistUrl)).text();
 }
 
@@ -721,7 +730,12 @@ async function processStep4() {
 
   try {
     // A) Process handle URLs
-    if (mimic_url.includes('/@')) {
+    if (mimic_url.includes('/@') || mimic_url.includes('/c/') || mimic_url.includes('/C/')) {
+
+      if (mimic_url.includes('/c/') || mimic_url.includes('/C/')) {
+        mimic_url = mimic_url.replace('/c/', '/@').replace('/C/', '/@');
+      }
+      
       original_mimic_url = mimic_url;
       const _u = new URL(mimic_url);
       const _segs = _u.pathname.split('/').filter(Boolean);
@@ -732,13 +746,18 @@ async function processStep4() {
         return;
       }
       
-      const playlistResponse_check = await fetch(mimic_url, { method: 'HEAD' }).catch(() => ({ status: 0 }));
+      const playlistResponse_check_status = await checkUrlStatus(mimic_url);
       const mimic_url_handle_weirdness_check = mimic_url.replace('/@', '/channel/');
-      console.log(`[MiMic] Checking playlistResponse_check.status: ${playlistResponse_check.status}`);
-      if (playlistResponse_check.status !== 200 && (await fetch(mimic_url_handle_weirdness_check, { method: 'HEAD' }).then(resp => resp.status === 200).catch(() => false))) {
+      const mimic_ending_check = mimic_url.replace(/[.!?]+$/, '');
+      console.log(`[MiMic] Checking playlistResponse_check_status: ${playlistResponse_check_status}`);
+      if (playlistResponse_check_status !== 200 && await checkUrlStatus(mimic_url_handle_weirdness_check) === 200) {
         mimic_url = mimic_url_handle_weirdness_check;
         console.log(`[MiMic] Converted handle mimic_url to channel version: ${mimic_url} after successful HEAD request of mimic_url_handle_weirdness_check`);
+      } else if (playlistResponse_check_status !== 200  && await checkUrlStatus(mimic_ending_check) == 200) {
+        mimic_url = mimic_ending_check;
+        console.log(`[MiMic] Converted handle mimic_url to ending version: ${mimic_url} after successful HEAD request of mimic_ending_check`);
       }
+
 
       const lower_mimic_url = mimic_url.toLowerCase().replace(/https?:\/\/www\.youtube\.com/, '');
       console.log('[MiMic] Processed mimic_url for handle checks:', lower_mimic_url);
@@ -754,6 +773,8 @@ async function processStep4() {
       const parser = new DOMParser();
       const doc = parser.parseFromString(playlistHtml, 'text/html');
       const canonicalTag = doc.querySelector('head link[rel="canonical"]');
+
+      console.log(`[MiMic] Check mimic_url and canonicalTag: ${mimic_url}, ${canonicalTag ? canonicalTag.href : 'no canonical tag found'}`);
 
       if (canonicalTag && canonicalTag.href) {
         // Store the canonical URL back to mimic_url
@@ -823,9 +844,7 @@ async function processStep4() {
     // D) Process channel URLs
     if (mimic_url.includes('/channel/')) {
       // Convert /c/ or /C/ to /@
-      if (mimic_url.includes('/c/') || mimic_url.includes('/C/')) {
-        mimic_url = mimic_url.replace('/c/', '/@').replace('/C/', '/@');
-      }
+
       original_mimic_url = mimic_url;
 
       const _u = new URL(mimic_url );
@@ -942,7 +961,8 @@ const DEFAULT_CHANNELS = [
   '/@nightmaremasterclass',
   '/@gr33nmansam',
   '/@drippyghost',
-  '/@gear2nd'
+  '/@gear2nd',
+  '/@gl1tchw1tch'
 ];
 
 // Load approved channels from storage

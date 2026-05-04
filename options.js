@@ -38,7 +38,8 @@ const DEFAULT_CHANNELS = [
   '/@nightmaremasterclass',
   '/@gr33nmansam',
   '/@drippyghost',
-  '/@gear2nd'
+  '/@gear2nd',
+  '/@gl1tchw1tch'
 ];
 
 // DOM elements
