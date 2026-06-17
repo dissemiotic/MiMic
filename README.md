@@ -89,4 +89,4 @@ The following channels are approved by default. This list can be edited at any t
 | [Gear ²](https://www.youtube.com/@gear2nd) | [https://www.youtube.com/@gear2nd](https://www.youtube.com/@gear2nd) |
 | [glitchwitch dot jpg](https://www.youtube.com/@gl1tchw1tch) | [https://www.youtube.com/@gl1tchw1tch](https://www.youtube.com/@gl1tchw1tch) |
 | [swift3dge](https://www.youtube.com/@swift3dge) | [https://www.youtube.com/@swift3dge](https://www.youtube.com/@swift3dge) |
-| [LittleRedSM](https://www.youtube.com/@LittleRedSM) | [https://www.youtube.com/@LittleRedSM](https://www.youtube.com/@LittleRedSM) |
+| [Red](https://www.youtube.com/@LittleRedSM) | [https://www.youtube.com/@LittleRedSM](https://www.youtube.com/@LittleRedSM) |
