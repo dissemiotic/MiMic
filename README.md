@@ -49,42 +49,42 @@ Install via the Chrome Extension store, or:
 
 The following channels are approved by default. This list can be edited at any time from the extension's options page. Want to suggest a commentator or add your channel? Email us a dissemiotic [at] gmail!
 
-| Handle | Channel |
+| Handle | Channel Link |
 | :--- | :--- |
-[Halfbrewed](https://www.youtube.com/@halfbrewed) [https://www.youtube.com/@halfbrewed](https://www.youtube.com/@halfbrewed)
-[Nexpo](https://www.youtube.com/@nexpo) [https://www.youtube.com/@nexpo](https://www.youtube.com/@nexpo)
-[Soupysoup](https://www.youtube.com/@soupysoupx) [https://www.youtube.com/@soupysoupx](https://www.youtube.com/@soupysoupx)
-[Baz](https://www.youtube.com/@bazamalam) [https://www.youtube.com/@bazamalam](https://www.youtube.com/@bazamalam)
-[Emortalmarcus](https://www.youtube.com/@emortalmarcus) [https://www.youtube.com/@emortalmarcus](https://www.youtube.com/@emortalmarcus)
-[Soda Girl](https://www.youtube.com/@sodagirl) [https://www.youtube.com/@sodagirl](https://www.youtube.com/@sodagirl)
-[Muldered](https://www.youtube.com/@muldered) [https://www.youtube.com/@muldered](https://www.youtube.com/@muldered)
-[Wowmanzz](https://www.youtube.com/@wowmanzz) [https://www.youtube.com/@wowmanzz](https://www.youtube.com/@wowmanzz)
-[Seedbutter](https://www.youtube.com/@seedbutter) [https://www.youtube.com/@seedbutter](https://www.youtube.com/@seedbutter)
-[4plus](https://www.youtube.com/@4plus419) [https://www.youtube.com/@4plus419](https://www.youtube.com/@4plus419)
-[Night Mind](https://www.youtube.com/@nightmind) [https://www.youtube.com/@nightmind](https://www.youtube.com/@nightmind)
-[Wendigoon](https://www.youtube.com/@wendigoon) [https://www.youtube.com/@wendigoon](https://www.youtube.com/@wendigoon)
-[Antthony Gallego](https://www.youtube.com/@antthonygallego) [https://www.youtube.com/@antthonygallego](https://www.youtube.com/@antthonygallego)
-[Minaxa](https://www.youtube.com/@minaxa) [https://www.youtube.com/@minaxa](https://www.youtube.com/@minaxa)
-[Catman](https://www.youtube.com/@catman_vhs) [https://www.youtube.com/@catman_vhs](https://www.youtube.com/@catman_vhs)
-[Crowmudgeon](https://www.youtube.com/@crowmudgeon) [https://www.youtube.com/@crowmudgeon](https://www.youtube.com/@crowmudgeon)
-[TMetal](https://www.youtube.com/@tmetal2854) [https://www.youtube.com/@tmetal2854](https://www.youtube.com/@tmetal2854)
-[Mythonics](https://www.youtube.com/@mythonics) [https://www.youtube.com/@mythonics](https://www.youtube.com/@mythonics)
-[Reapestrella](https://www.youtube.com/@reapestrella) [https://www.youtube.com/@reapestrella](https://www.youtube.com/@reapestrella)
-[Danielprofeta](https://www.youtube.com/@danielprofeta) [https://www.youtube.com/@danielprofeta](https://www.youtube.com/@danielprofeta)
-[Sunflower](https://www.youtube.com/@sunflower41xd) [https://www.youtube.com/@sunflower41xd](https://www.youtube.com/@sunflower41xd)
-[BD Studios](https://www.youtube.com/@bdstudios8700) [https://www.youtube.com/@bdstudios8700](https://www.youtube.com/@bdstudios8700)
-[Johnxwoodcat](https://www.youtube.com/@johnxwoodcat) [https://www.youtube.com/@johnxwoodcat](https://www.youtube.com/@johnxwoodcat)
-[Codexcurse](https://www.youtube.com/@codexcurse) [https://www.youtube.com/@codexcurse](https://www.youtube.com/@codexcurse)
-[The Night Archives](https://www.youtube.com/@thenightarchives4148) [https://www.youtube.com/@thenightarchives4148](https://www.youtube.com/@thenightarchives4148)
-[Thathorrordude101](https://www.youtube.com/@thathorrordude101) [https://www.youtube.com/@thathorrordude101](https://www.youtube.com/@thathorrordude101)
-[Thatguyzan](https://www.youtube.com/@thatguyzanyt) [https://www.youtube.com/@thatguyzanyt](https://www.youtube.com/@thatguyzanyt)
-[M3ow](https://www.youtube.com/@m3owyt) [https://www.youtube.com/@m3owyt](https://www.youtube.com/@m3owyt)
-[Tedorate](https://www.youtube.com/@tedorate) [https://www.youtube.com/@tedorate](https://www.youtube.com/@tedorate)
-[Abashortfilms](https://www.youtube.com/@abashortfilms) [https://www.youtube.com/@abashortfilms](https://www.youtube.com/@abashortfilms)
-[Gearisko](https://www.youtube.com/@gearisko) [https://www.youtube.com/@gearisko](https://www.youtube.com/@gearisko)
-[Jay Bird](https://www.youtube.com/@jaybird160) [https://www.youtube.com/@jaybird160](https://www.youtube.com/@jaybird160)
-[Nightmare Masterclass](https://www.youtube.com/@nightmaremasterclass) [https://www.youtube.com/@nightmaremasterclass](https://www.youtube.com/@nightmaremasterclass)
-[Gr33nManSam](https://www.youtube.com/@gr33nmansam) [https://www.youtube.com/@gr33nmansam](https://www.youtube.com/@gr33nmansam)
-[Drippy Ghost](https://www.youtube.com/@drippyghost) [https://www.youtube.com/@drippyghost](https://www.youtube.com/@drippyghost)
-[Gear ²](https://www.youtube.com/@gear2nd) [https://www.youtube.com/@gear2nd](https://www.youtube.com/@gear2nd)
-[glitchwitch dot jpg](https://www.youtube.com/@gl1tchw1tch) [https://www.youtube.com/@gl1tchw1tch](https://www.youtube.com/@gl1tchw1tch)
+| [Halfbrewed](https://www.youtube.com/@halfbrewed) | [https://www.youtube.com/@halfbrewed](https://www.youtube.com/@halfbrewed) |
+| [Nexpo](https://www.youtube.com/@nexpo) | [https://www.youtube.com/@nexpo](https://www.youtube.com/@nexpo) |
+| [Soupysoup](https://www.youtube.com/@soupysoupx) | [https://www.youtube.com/@soupysoupx](https://www.youtube.com/@soupysoupx) |
+| [Baz](https://www.youtube.com/@bazamalam) | [https://www.youtube.com/@bazamalam](https://www.youtube.com/@bazamalam) |
+| [Emortalmarcus](https://www.youtube.com/@emortalmarcus) | [https://www.youtube.com/@emortalmarcus](https://www.youtube.com/@emortalmarcus) |
+| [Soda Girl](https://www.youtube.com/@sodagirl) | [https://www.youtube.com/@sodagirl](https://www.youtube.com/@sodagirl) |
+| [Muldered](https://www.youtube.com/@muldered) | [https://www.youtube.com/@muldered](https://www.youtube.com/@muldered) |
+| [Wowmanzz](https://www.youtube.com/@wowmanzz) | [https://www.youtube.com/@wowmanzz](https://www.youtube.com/@wowmanzz) |
+| [Seedbutter](https://www.youtube.com/@seedbutter) | [https://www.youtube.com/@seedbutter](https://www.youtube.com/@seedbutter) |
+| [4plus](https://www.youtube.com/@4plus419) | [https://www.youtube.com/@4plus419](https://www.youtube.com/@4plus419) |
+| [Night Mind](https://www.youtube.com/@nightmind) | [https://www.youtube.com/@nightmind](https://www.youtube.com/@nightmind) |
+| [Wendigoon](https://www.youtube.com/@wendigoon) | [https://www.youtube.com/@wendigoon](https://www.youtube.com/@wendigoon) |
+| [Antthony Gallego](https://www.youtube.com/@antthonygallego) | [https://www.youtube.com/@antthonygallego](https://www.youtube.com/@antthonygallego) |
+| [Minaxa](https://www.youtube.com/@minaxa) | [https://www.youtube.com/@minaxa](https://www.youtube.com/@minaxa) |
+| [Catman](https://www.youtube.com/@catman_vhs) | [https://www.youtube.com/@catman_vhs](https://www.youtube.com/@catman_vhs) |
+| [Crowmudgeon](https://www.youtube.com/@crowmudgeon) | [https://www.youtube.com/@crowmudgeon](https://www.youtube.com/@crowmudgeon) |
+| [TMetal](https://www.youtube.com/@tmetal2854) | [https://www.youtube.com/@tmetal2854](https://www.youtube.com/@tmetal2854) |
+| [Mythonics](https://www.youtube.com/@mythonics) | [https://www.youtube.com/@mythonics](https://www.youtube.com/@mythonics) |
+| [Reapestrella](https://www.youtube.com/@reapestrella) | [https://www.youtube.com/@reapestrella](https://www.youtube.com/@reapestrella) |
+| [Danielprofeta](https://www.youtube.com/@danielprofeta) | [https://www.youtube.com/@danielprofeta](https://www.youtube.com/@danielprofeta) |
+| [Sunflower](https://www.youtube.com/@sunflower41xd) | [https://www.youtube.com/@sunflower41xd](https://www.youtube.com/@sunflower41xd) |
+| [BD Studios](https://www.youtube.com/@bdstudios8700) | [https://www.youtube.com/@bdstudios8700](https://www.youtube.com/@bdstudios8700) |
+| [Johnxwoodcat](https://www.youtube.com/@johnxwoodcat) | [https://www.youtube.com/@johnxwoodcat](https://www.youtube.com/@johnxwoodcat) |
+| [Codexcurse](https://www.youtube.com/@codexcurse) | [https://www.youtube.com/@codexcurse](https://www.youtube.com/@codexcurse) |
+| [The Night Archives](https://www.youtube.com/@thenightarchives4148) | [https://www.youtube.com/@thenightarchives4148](https://www.youtube.com/@thenightarchives4148) |
+| [Thathorrordude101](https://www.youtube.com/@thathorrordude101) | [https://www.youtube.com/@thathorrordude101](https://www.youtube.com/@thathorrordude101) |
+| [Thatguyzan](https://www.youtube.com/@thatguyzanyt) | [https://www.youtube.com/@thatguyzanyt](https://www.youtube.com/@thatguyzanyt) |
+| [M3ow](https://www.youtube.com/@m3owyt) | [https://www.youtube.com/@m3owyt](https://www.youtube.com/@m3owyt) |
+| [Tedorate](https://www.youtube.com/@tedorate) | [https://www.youtube.com/@tedorate](https://www.youtube.com/@tedorate) |
+| [Abashortfilms](https://www.youtube.com/@abashortfilms) | [https://www.youtube.com/@abashortfilms](https://www.youtube.com/@abashortfilms) |
+| [Gearisko](https://www.youtube.com/@gearisko) | [https://www.youtube.com/@gearisko](https://www.youtube.com/@gearisko) |
+| [Jay Bird](https://www.youtube.com/@jaybird160) | [https://www.youtube.com/@jaybird160](https://www.youtube.com/@jaybird160) |
+| [Nightmare Masterclass](https://www.youtube.com/@nightmaremasterclass) | [https://www.youtube.com/@nightmaremasterclass](https://www.youtube.com/@nightmaremasterclass) |
+| [Gr33nManSam](https://www.youtube.com/@gr33nmansam) | [https://www.youtube.com/@gr33nmansam](https://www.youtube.com/@gr33nmansam) |
+| [Drippy Ghost](https://www.youtube.com/@drippyghost) | [https://www.youtube.com/@drippyghost](https://www.youtube.com/@drippyghost) |
+| [Gear ²](https://www.youtube.com/@gear2nd) | [https://www.youtube.com/@gear2nd](https://www.youtube.com/@gear2nd) |
+| [glitchwitch dot jpg](https://www.youtube.com/@gl1tchw1tch) | [https://www.youtube.com/@gl1tchw1tch](https://www.youtube.com/@gl1tchw1tch) |
