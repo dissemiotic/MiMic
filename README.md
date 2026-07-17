@@ -16,12 +16,14 @@ Note that we decided to rely on YouTube video metadata versus YouTube API endpoi
 
 ## Features
 
-- **Customizable Channels**: Manage your own list of approved channels via the extension's options page.
-- **User Control**: The confirmation dialog gives you control over whether the MiMic video is muted or minimized on a per-video basis.
-- **Persistent Playback**: The MiMic video will not automatically pause when the window is minimized or loses focus.
-- **Respects User Input**: Deliberately pausing, playing, or muting the MiMic video via the YouTube UI works as expected and is not overridden by the extension.
-- **Handles All Link Types**: Correctly processes variations of `watch?v=`, `/playlist/`, `youtu.be/`, `/c/`, `/user/`, `@channel`, and vanity links found in YouTube video descriptions from select accounts.
-- **Finetuned Source Material Detection Process**: Accurately singles out the subject matter from a YouTube video description. Commentators can also include a special indicator, `⧸`, before a link in the description to preselect the source material to open!
+- Customizable Channels: Manage your own list of approved channels via the extension's options page.
+- User Control: The confirmation dialog gives you control over whether the MiMic video is muted or minimized on a per-video basis.
+- Persistent Playback: The MiMic video will not automatically pause when the window is minimized or loses focus.
+- Respects User Input: Deliberately pausing, playing, or muting the MiMic video via the YouTube UI works as expected and is not overridden by the extension.
+- Handles All Link Types: Correctly processes variations of `watch?v=`, `/playlist/`, `youtu.be/`, and `@channel` links found in YouTube video descriptions from select accounts.
+- Finetuned Source Material Detection Process: Accurately singles out the subject matter from a YouTube video description. Commentators can also include a special indicator, `⧸`, before a link in the description to preselect the source material to open!
+- Spawn a MiMic: Run the MiMic video treatment for any YouTube video, channel, or handle your dark heart desires.
+- Autopilot mode (available via Options in extension's menu): Leave the door open ...
 
 ## Installation
 
@@ -90,3 +92,4 @@ The following channels are approved by default. This list can be edited at any t
 | [glitchwitch dot jpg](https://www.youtube.com/@gl1tchw1tch) | [https://www.youtube.com/@gl1tchw1tch](https://www.youtube.com/@gl1tchw1tch) |
 | [swift3dge](https://www.youtube.com/@swift3dge) | [https://www.youtube.com/@swift3dge](https://www.youtube.com/@swift3dge) |
 | [Red](https://www.youtube.com/@LittleRedSM) | [https://www.youtube.com/@LittleRedSM](https://www.youtube.com/@LittleRedSM) |
+| [Mr. Cow](https://www.youtube.com/@MrCow) | [https://www.youtube.com/@MrCow](https://www.youtube.com/@MrCow) |
