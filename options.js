@@ -17,6 +17,7 @@ const DEFAULT_CHANNELS = [
   '/@antthonygallego',
   '/@minaxa',
   '/@wendigoon',
+  '/@wendigang',
   '/@catman_vhs',
   '/@crowmudgeon',
   '/@tmetal2854',
@@ -39,7 +40,10 @@ const DEFAULT_CHANNELS = [
   '/@gr33nmansam',
   '/@drippyghost',
   '/@gear2nd',
-  '/@gl1tchw1tch'
+  '/@gl1tchw1tch',
+  '/@swift3dge',
+  '/@littleredsm',
+  '/@mrcow'
 ];
 
 // DOM elements
@@ -54,6 +58,14 @@ const statusMessage = document.getElementById('statusMessage');
 document.addEventListener('DOMContentLoaded', () => {
   loadChannels();
   loadAutomation();
+
+  const exclusionsToggle = document.getElementById('exclusionsToggle');
+  const exclusionsDrawer = document.getElementById('exclusionsDrawer');
+  exclusionsToggle.addEventListener('click', () => {
+    const expanded = exclusionsToggle.getAttribute('aria-expanded') === 'true';
+    exclusionsToggle.setAttribute('aria-expanded', String(!expanded));
+    exclusionsDrawer.hidden = expanded;
+  });
 });
 
 // Event listeners

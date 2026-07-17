@@ -55,10 +55,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           });
         };
         
-        // Wait for tab to start loading, then inject
+        // Mark the tab as a MiMic window via sessionStorage as soon as it is
+        // ready, then inject keep-playing.js.
         chrome.tabs.onUpdated.addListener(function listener(updatedTabId, info) {
           if (updatedTabId === tabId && info.status === 'loading') {
             chrome.tabs.onUpdated.removeListener(listener);
+            chrome.scripting.executeScript({
+              target: { tabId: tabId },
+              world: 'MAIN',
+              injectImmediately: true,
+              func: () => { sessionStorage.setItem('mimicWindow', '1'); }
+            }, () => { if (chrome.runtime.lastError) {} });
             injectScript();
           }
         });
@@ -112,7 +119,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               console.log('[MiMic] Title changed to "' + info.title + '" — pausing auto-advanced video');
               chrome.tabs.onUpdated.removeListener(titleWatcher); // fire once only
 
-              chrome.tabs.sendMessage(tabId, { action: 'mimicForcePause' }, () => {
+              chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                world: 'MAIN',
+                func: () => { window.postMessage({ action: 'mimicForcePause' }, '*'); }
+              }, () => {
                 if (chrome.runtime.lastError) {
                   console.log('[MiMic] Could not send forcePause:', chrome.runtime.lastError.message);
                 }
@@ -127,4 +138,52 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   
   return true; // Keep message channel open for async response
+});
+
+function isYouTubeUrl(url) {
+  return typeof url === 'string' && url.startsWith('https://www.youtube.com/');
+}
+
+function updateEngenderMenuItem(tabId) {
+  chrome.tabs.get(tabId, (tab) => {
+    if (chrome.runtime.lastError) return;
+    chrome.contextMenus.update('engenderMimic', {
+      enabled: isYouTubeUrl(tab.url)
+    });
+  });
+}
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: 'engenderMimic',
+    title: 'Spawn a MiMic',
+    contexts: ['action'],
+    enabled: false
+  });
+});
+
+chrome.tabs.onActivated.addListener((activeInfo) => {
+  updateEngenderMenuItem(activeInfo.tabId);
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.url) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0] && tabs[0].id === tabId) {
+        chrome.contextMenus.update('engenderMimic', {
+          enabled: isYouTubeUrl(changeInfo.url)
+        });
+      }
+    });
+  }
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === 'engenderMimic' && tab.id) {
+    chrome.tabs.sendMessage(tab.id, { action: 'openEngenderMimicWindow' }, () => {
+      if (chrome.runtime.lastError) {
+        console.log('[MiMic] Could not send openEngenderMimicWindow:', chrome.runtime.lastError.message);
+      }
+    });
+  }
 });

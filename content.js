@@ -13,16 +13,20 @@ let mimic_title = '';
 let mimic_author = '';
 let channel_id = '';
 let hasActivated = false; // Track if we've already shown dialog for current video
+let cachedPlayerResponse = null;
 
 // Track whether activation is currently in progress to prevent overlapping runs
 let isProcessing = false;
+
+// True when this tab was opened as a MiMic popup window.
+// background.js writes the key via chrome.scripting before navigation begins.
+const isMimicWindow = sessionStorage.getItem('mimicWindow') === '1';
 
 // Approved channel list (populated from storage; defaults defined in options.js)
 let APPROVED_CHANNELS = [];                                     
 
 // Disapproved channel list - note: this isn't a judgment on the quality of these channels' videos or the channel creators' actions/dispositions/whatever, just if the listed handles serve as (1) other YT creators who commonly contribute to the production of YT horror commentary videos but do little of it themselves on their own corner of the platform, (2) secondary channels that often get linked to in the creators' video descriptions, OR (3) if the creator uses the handle to comment on YT Horror while tending to not link to the original source material. these three kinds cause the extension to essentially malfunction.
-const DISAPPROVED_CHANNELS = new Set([
-  '/@wendigames',
+const DISAPPROVED_HANDLES = new Set([
   '/@mistagg',
   '/@operatordrewski',
   '/@papameat',
@@ -34,19 +38,25 @@ const DISAPPROVED_CHANNELS = new Set([
   '/@all-bonesjones',
   '/@sodajump',
   '/@harruwu',
-  '/@therealmrmirage',
   '/@projectemortal',
   '/@emortalmarcusvods',
-  '/@chrocilfer',
   '/@suwuonyt',
   '/@nationalfreak',
-  '@HadenLeeF'
+  '/@hadenleef',
+  '/@a24',
+  '/@zunclezeff',
+  '/@_iansav',
+  '/@gobliniumthe',
+  '/@seedbutterclips',
+  '/@corporealsister'
 ]);
 
 const DISAPPROVED_OTHER_YT = new Set([
 'https://www.youtube.com/channel/UCVHTYS0EIbTWfK-fVFo2NEg',
 'https://www.youtube.com/channel/UC8L0M5FgnBxSBTLeqAn0-xA',
-'https://www.youtube.com/channel/UCkm-PWprSLIjMb21hwv2AGw'
+'https://www.youtube.com/channel/UCkm-PWprSLIjMb21hwv2AGw',
+'https://www.youtube.com/channel/UCbKgJeD5wmf-7iYBvsc-Jjg',
+'https://www.youtube.com/channel/UCD8ieEwwSCzJHycjKR44CxQ'
 ]);
 
 // Helper function to extract metadata from HTML string
@@ -108,20 +118,27 @@ function deactivate(soft = false) {
 
 // Step 6: Open MiMic window
 function openMimicWindow(shouldMute = true, shouldMinimize = true) {
-  console.log('[MiMic] Opening window:', mimic_url);
+  const targetUrl = mimic_url;
+  console.log('[MiMic] Opening window:', targetUrl);
   console.log('[MiMic] Checkbox values - shouldMute:', shouldMute, 'shouldMinimize:', shouldMinimize);
+
+  if (!/^https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|@|channel\/)|youtu\.be\/)/i.test(targetUrl)) {
+    console.error('[MiMic] Refusing to open invalid MiMic URL:', targetUrl);
+    deactivate();
+    return;
+  }
 
   try {
     chrome.runtime.sendMessage({
       action: 'openMimicWindow',
-      url: mimic_url,
+      url: targetUrl,
       shouldMute: shouldMute,
       shouldMinimize: shouldMinimize
     }, (response) => {
       if (chrome.runtime.lastError) {
         console.error('[MiMic] Extension context invalidated. Please reload the page.');
         // Fallback: open in new window using window.open
-        window.open(mimic_url, '_blank', 'width=400,height=300');
+        window.open(targetUrl, '_blank', 'width=400,height=300');
         deactivate();
         return;
       }
@@ -133,13 +150,14 @@ function openMimicWindow(shouldMute = true, shouldMinimize = true) {
   } catch (error) {
     console.error('[MiMic] Error opening window:', error);
     // Fallback: open in new window
-    window.open(mimic_url, '_blank', 'width=400,height=300');
+    window.open(targetUrl, '_blank', 'width=400,height=300');
     deactivate();
   }
 }
 
 // Step 5: Show dialog overlay
 function showDialog() {
+  const targetUrl = mimic_url;
   // Create full-screen overlay for click detection
   const overlay = document.createElement('div');
   overlay.id = 'mimic-overlay';
@@ -196,7 +214,7 @@ function showDialog() {
   const message = document.createElement('p');
   // Create the hyperlinks
   const link = document.createElement('a');
-  link.href = mimic_url;
+  link.href = targetUrl;
   link.textContent = mimic_title;
   link.target = '_blank'; // Optional: open in new tab
 
@@ -486,7 +504,7 @@ async function activate() {
 
     // Step 2: Check if channel is approved or disapproved
     // First check disapproved list
-    if (DISAPPROVED_CHANNELS.has(account_url)) {
+    if (DISAPPROVED_HANDLES.has(account_url)) {
       console.log('[MiMic] Channel is disapproved, deactivating');
       deactivate();
       return;
@@ -514,7 +532,7 @@ async function processDescription() {
   const markerIndex = extract_sd_description.indexOf('⧸');
   if (markerIndex !== -1) {
     const afterMarker = extract_sd_description.substring(markerIndex + 1);
-    const httpMatch = afterMarker.match(/https?:\/\/(?:(?:www\. )?youtube\.com|youtu\.be)[^\n]*/);
+    const httpMatch = afterMarker.match(/https?:\/\/(?:(?:www\.)?youtube\.com|youtu\.be)[^\n]*/);
     const atMatch =  afterMarker.match(/[^@\s\n]+/);
     const matchNot = afterMarker.match(/(?!.*\/redirect\?)(?!.*\/hashtag\/)[^@\s\n]+/);
     console.log('[MiMic] Marker found, httpMatch:', httpMatch, 'atMatch:', atMatch, 'matchNot:', matchNot);
@@ -541,19 +559,20 @@ async function processDescription() {
       extract_sd_description = extract_sd_description.replace(/⧸/, '');
     }
   }
-
-  // Extract URLs matching criteria
+  
   extract0 = [];
 
   // URL extraction - split by whitespace and newlines
-  const words = extract_sd_description.split(/[\s\n]+/);
-
-  for (let word of words) {
+  const words = extract_sd_description.split(/[\s\n]+/).map(w => w.trim()).filter(w => w);
+  console.log('[MiMic] Split description into words:', words);
+  for (const trimmedWord of words) {
+    const normalizedWord = trimmedWord.replace(/[\u200B\u200C\u200D\uFEFF]/g, '');
+    const wordToCheck = normalizedWord || trimmedWord;
     // Criterion 1: URLs starting with 'http'
-    if (word.startsWith('http')) {
+    if (wordToCheck.startsWith('http')) {
       // Case 1: youtu.be and non-www URLs
-      if (word.includes('youtu.be/')) {
-        const match = word.match(/\.be\/(.+)/);
+      if (wordToCheck.includes('youtu.be/')) {
+        const match = wordToCheck.match(/\.be\/(.+)/);
         if (match) {
           const afterBe = match[1];
           const url = 'https://www.youtube.com/watch?v=' + afterBe;
@@ -561,35 +580,35 @@ async function processDescription() {
         }
       }
       // Case 2: URLs containing 'youtube'
-      else if (word.includes('youtube.com/')) {
-        if (!word.includes('www.youtube.com/')){
-          word = word.replace('youtube.com/', 'www.youtube.com/');
+      else if (wordToCheck.includes('youtube.com/')) {
+        let normalizedUrl = wordToCheck;
+        if (!normalizedUrl.includes('www.youtube.com/')) {
+          normalizedUrl = normalizedUrl.replace('youtube.com/', 'www.youtube.com/');
         }
 
-        const url = word;
-
-        if (DISAPPROVED_OTHER_YT.has(url)) {
+        if (DISAPPROVED_OTHER_YT.has(normalizedUrl)) {
           console.log('[MiMic] URL is on disapproved list, skipping');
           continue;
         }
-        extract0.push(url.replace(/\n+$/, ''));
+        extract0.push(normalizedUrl.replace(/\n+$/, ''));
       }
       // Case 3: URLs containing '@'
-      else if (word.includes('@')) {
+      else if (wordToCheck.includes('@')) {
         const tryFallback = async () => {
-          const fallbackUrl = 'https://www.youtube.com/channel/' + word.substring(word.indexOf('@') + 1);
+          const fallbackUrl = 'https://www.youtube.com/channel/' + wordToCheck.substring(wordToCheck.indexOf('@') + 1);
+          console.log('[MiMic] Trying fallback URL:', fallbackUrl);
           try {
             const r = await fetch(fallbackUrl, { method: 'HEAD' });
             if (r.status === 200) extract0.push(fallbackUrl);
           } catch {
-            console.log('[MiMic] Fallback fetch failed for @-containing URL:', word);
+            console.log('[MiMic] Fallback fetch failed for @-containing URL:', wordToCheck);
           }
         };
 
         try {
-          const response = await fetch(word, { method: 'HEAD' });
+          const response = await fetch(wordToCheck, { method: 'HEAD' });
           if (response.ok) {
-            extract0.push(word);
+            extract0.push(wordToCheck);
           } else {
             await tryFallback();
           }
@@ -599,13 +618,17 @@ async function processDescription() {
       }
       // Case 3: All other http URLs
       else {
-        extract0.push(word.replace(/\n+$/, ''));
+        extract0.push(wordToCheck.replace(/\n+$/, ''));
       }
-    }
-
-    // Criterion 2: Handles starting with '@'
-    if (word.startsWith('@')) {
-      const url = 'https://www.youtube.com/' + word;
+    } else if (wordToCheck.startsWith('@') || wordToCheck.includes('🌔@') || wordToCheck.includes(':@')) {
+      console.log('[MiMic] Found handle-like word:', wordToCheck);
+      let part;
+      if (wordToCheck.startsWith('@')) {
+        part = wordToCheck;
+      } else {
+        part = wordToCheck.substring(wordToCheck.indexOf('@'));
+      }
+      const url = 'https://www.youtube.com/' + part.trim();
       extract0.push(url);
     }
   }
@@ -645,6 +668,10 @@ async function processDescription() {
 
 // Shared helper: fetch metadata for mimic_url, then either auto-open or show dialog.
 async function finishWithVideo() {
+  if (isMimicWindow) {
+    console.log('[MiMic] Skipping finishWithVideo — running inside a MiMic window');
+    return;
+  }
   await extractVideoMetadata(mimic_url).catch(err => {
     console.error(`[MiMic] extractVideoMetadata failed for ${mimic_url}:`, err);
     deactivate();
@@ -668,12 +695,66 @@ function checkChannelLists(html, urlToRemove,) {
   console.log(`[MiMic] Assembled channel URL: ${channelMatchURL}`);
   const isApproved = APPROVED_CHANNELS.includes(channelMatchURL) &&
     !channelMatchURL.includes('/@dissemiotic');
-  if (isApproved || DISAPPROVED_CHANNELS.has(channelMatchURL)) {
+  if (isApproved || DISAPPROVED_HANDLES.has(channelMatchURL)) {
     console.log('[MiMic] Channel is on approved/disapproved list, trying next URL');
     tryNextUrl(urlToRemove);
     return true;
   }
   return false;
+}
+
+// Resolve a handle page to its channel URL without relying solely on the document's
+// canonical <link>. YouTube can omit that link from the HTML returned to a
+// content-script fetch while retaining the channel ID in inline metadata.
+function resolveChannelUrlFromHandleHtml(html, doc, handleUrl) {
+  const channelIdPattern = '(UC[0-9A-Za-z_-]{22})';
+  const canonicalTag = doc.querySelector('head link[rel="canonical"]');
+  const canonicalUrl = canonicalTag?.href || '';
+  const canonicalMatch = canonicalUrl.match(/\/channel\/(UC[0-9A-Za-z_-]{22})(?:[/?#]|$)/i);
+  if (canonicalMatch) {
+    return `https://www.youtube.com/channel/${canonicalMatch[1]}`;
+  }
+
+  const metaChannelId = doc.querySelector('meta[itemprop="channelId"]')?.getAttribute('content') || '';
+  if (new RegExp(`^${channelIdPattern}$`).test(metaChannelId)) {
+    return `https://www.youtube.com/channel/${metaChannelId}`;
+  }
+
+  let handlePath;
+  try {
+    handlePath = new URL(handleUrl).pathname.replace(/\/+$/, '').toLowerCase();
+  } catch {
+    return null;
+  }
+
+  const normalizedHtml = html.replace(/\\\//g, '/');
+  const escapedHandlePath = handlePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const idBeforeHandle = new RegExp(
+    `"(?:externalId|channelId|browseId)"\\s*:\\s*"${channelIdPattern}"[\\s\\S]{0,12000}"canonicalBaseUrl"\\s*:\\s*"${escapedHandlePath}"`,
+    'i'
+  );
+  const idAfterHandle = new RegExp(
+    `"canonicalBaseUrl"\\s*:\\s*"${escapedHandlePath}"[\\s\\S]{0,12000}"(?:externalId|channelId|browseId)"\\s*:\\s*"${channelIdPattern}"`,
+    'i'
+  );
+
+  for (const pattern of [idBeforeHandle, idAfterHandle]) {
+    const match = normalizedHtml.match(pattern);
+    if (match) {
+      return `https://www.youtube.com/channel/${match[1]}`;
+    }
+  }
+
+  // This fallback is intentionally scoped to channel metadata, so an unrelated
+  // channel ID elsewhere in a large YouTube response is not selected.
+  const metadataMatch = normalizedHtml.match(
+    /"channelMetadataRenderer"\s*:\s*\{[\s\S]{0,12000}?"(?:externalId|channelId|browseId)"\s*:\s*"(UC[0-9A-Za-z_-]{22})"/i
+  );
+  if (metadataMatch) {
+    return `https://www.youtube.com/channel/${metadataMatch[1]}`;
+  }
+
+  return null;
 }
 
 // Shared helper: extract channel_id from a /channel/ URL, convert to UU prefix,
@@ -741,8 +822,8 @@ async function processStep4() {
       const _segs = _u.pathname.split('/').filter(Boolean);
       if (_segs.length > 1) mimic_url = _u.origin + '/' + _segs[0];
       if (mimic_url === account_url && !mimic_url.includes('dissemiotic')) {
-        // Remove this URL and try next
-        tryNextUrl(mimic_url);
+        // Remove the original candidate and try the next one.
+        tryNextUrl(original_mimic_url);
         return;
       }
       
@@ -761,27 +842,36 @@ async function processStep4() {
 
       const lower_mimic_url = mimic_url.toLowerCase().replace(/https?:\/\/www\.youtube\.com/, '');
       console.log('[MiMic] Processed mimic_url for handle checks:', lower_mimic_url);
-      if (DISAPPROVED_CHANNELS.has(lower_mimic_url) || APPROVED_CHANNELS.includes(lower_mimic_url) || DISAPPROVED_OTHER_YT.has(mimic_url)) {
+      if (DISAPPROVED_HANDLES.has(lower_mimic_url) || APPROVED_CHANNELS.includes(lower_mimic_url) || DISAPPROVED_OTHER_YT.has(mimic_url)) {
         console.log('[MiMic] mimic_URL is either a disapproved or approved handle, trying next URL');
 
         tryNextUrl(original_mimic_url);
         return;
       }
 
-      const playlistResponse = await fetch(mimic_url);
-      const playlistHtml = await playlistResponse.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(playlistHtml, 'text/html');
-      const canonicalTag = doc.querySelector('head link[rel="canonical"]');
-
-      console.log(`[MiMic] Check mimic_url and canonicalTag: ${mimic_url}, ${canonicalTag ? canonicalTag.href : 'no canonical tag found'}`);
-
-      if (canonicalTag && canonicalTag.href) {
-        // Store the canonical URL back to mimic_url
-        original_mimic_url = mimic_url;
-        mimic_url = canonicalTag.href;
-        console.log(`Updated mimic_url to: ${mimic_url}`);
+      const handleResponse = await fetch(mimic_url);
+      if (!handleResponse.ok) {
+        console.warn('[MiMic] Handle page request failed:', handleResponse.status, mimic_url);
+        tryNextUrl(original_mimic_url);
+        return;
       }
+
+      const handleHtml = await handleResponse.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(handleHtml, 'text/html');
+      const canonicalTag = doc.querySelector('head link[rel="canonical"]');
+      const resolvedChannelUrl = resolveChannelUrlFromHandleHtml(handleHtml, doc, mimic_url);
+
+      console.log(`[MiMic] Handle resolution: ${mimic_url}; canonical: ${canonicalTag?.href || 'not present'}; channel: ${resolvedChannelUrl || 'not found'}`);
+
+      if (!resolvedChannelUrl) {
+        console.warn('[MiMic] Could not resolve a channel ID for handle URL, trying next URL:', original_mimic_url);
+        tryNextUrl(original_mimic_url);
+        return;
+      }
+
+      mimic_url = resolvedChannelUrl;
+      console.log(`[MiMic] Resolved handle URL to channel URL: ${mimic_url}`);
 
       if (mimic_url.includes('/channel/')) {
         
@@ -940,6 +1030,7 @@ const DEFAULT_CHANNELS = [
   '/@antthonygallego',
   '/@minaxa',
   '/@wendigoon',
+  '/@wendigang',
   '/@catman_vhs',
   '/@crowmudgeon',
   '/@tmetal2854',
@@ -962,7 +1053,9 @@ const DEFAULT_CHANNELS = [
   '/@gr33nmansam',
   '/@drippyghost',
   '/@gear2nd',
-  '/@gl1tchw1tch'
+  '/@gl1tchw1tch',
+  '/@swift3dge',
+  '/@LittleRedSM'
 ];
 
 // Load approved channels from storage
@@ -979,6 +1072,249 @@ function loadApprovedChannels(callback) {
   });
 }
 
+function showEngenderMimicWindow() {
+  const existingOverlay = document.getElementById('mimic-engender-overlay');
+  if (existingOverlay) existingOverlay.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'mimic-engender-overlay';
+  overlay.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: transparent; display: flex; align-items: center;
+    justify-content: center; z-index: 999999;
+  `;
+
+  const dialog = document.createElement('div');
+  dialog.id = 'engenderMimicWindow';
+  dialog.style.cssText = `
+    background: linear-gradient(270deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.18); color: white; padding: 30px;
+    border-radius: 20px; text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    min-width: 420px; max-width: 90vw; width: auto;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1) inset;
+  `;
+
+  const header = document.createElement('h3');
+  header.innerHTML = 'Input a YouTube video, handle, or channel to open its MiMic window.<br><span style="font-size:80%; font-weight:400; display:block; margin-top:6px;">(Overrides failsafes and approved channel checks.)</span>';
+  header.style.cssText = `
+    margin-top: 0; margin-bottom: 20px; font-size: 16px; font-weight: 600;
+    letter-spacing: 0.3px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  `;
+
+  const inputField = document.createElement('input');
+  inputField.type = 'text';
+  inputField.placeholder = 'https://www.youtube.com/...';
+  inputField.style.cssText = `
+    width: 100%; padding: 10px 15px; margin-bottom: 15px;
+    background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px; color: white; font-size: 14px; outline: none; box-sizing: border-box;
+  `;
+  inputField.addEventListener('focus', () => { inputField.style.border = '1px solid rgba(255,255,255,0.6)'; });
+  inputField.addEventListener('blur',  () => { inputField.style.border = '1px solid rgba(255,255,255,0.3)'; });
+
+  const errorMsg = document.createElement('p');
+  errorMsg.style.cssText = `
+    color: #ff6666; font-size: 13px; margin-top: 0; margin-bottom: 15px;
+    display: none; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  `;
+
+  const submitButton = document.createElement('button');
+  submitButton.textContent = 'Submit';
+  submitButton.style.cssText = `
+    padding: 12px 32px; background: linear-gradient(135deg, #bbc0be, #bbc0be);
+    color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px;
+    cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(207, 218, 214, 0.37);
+  `;
+  submitButton.addEventListener('mouseover', () => {
+    submitButton.style.transform = 'translateY(-2px)';
+    submitButton.style.boxShadow = '0 6px 16px rgba(16,185,129,0.4)';
+  });
+  submitButton.addEventListener('mouseout', () => {
+    submitButton.style.transform = 'translateY(0)';
+    submitButton.style.boxShadow = '0 4px 12px rgba(16,185,129,0.3)';
+  });
+
+  const ENGENDER_URL_RE = /^https?:\/\/(?:www\.)?(?:youtube\.com\/(watch\?v=|@|channel\/)|youtu\.be\/)/i;
+
+  const handleSubmit = () => {
+    const url = inputField.value.trim();
+    const shortMatch = url.match(/^https?:\/\/(?:www\.)?youtu\.be\/([^?&#/]+)/i);
+    const normalizedUrl = shortMatch
+      ? `https://www.youtube.com/watch?v=${shortMatch[1]}`
+      : url;
+
+    if (ENGENDER_URL_RE.test(url)) {
+      errorMsg.style.display = 'none';
+      overlay.remove();
+      extract0 = [normalizedUrl];
+      mimic_url = '';
+      testForEngenderMimicWindow();
+    } else {
+      errorMsg.textContent = "Sorry, only use Youtube URLs that start with '\u0040', 'watch', or 'channel' in the root subfolder";
+      errorMsg.style.display = 'block';
+    }
+  };
+
+  submitButton.addEventListener('click', (e) => { e.stopPropagation(); handleSubmit(); });
+  inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSubmit(); } });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+  dialog.appendChild(header);
+  dialog.appendChild(inputField);
+  dialog.appendChild(errorMsg);
+  dialog.appendChild(submitButton);
+  overlay.appendChild(dialog);
+  document.body.appendChild(overlay);
+  setTimeout(() => inputField.focus(), 10);
+}
+
+async function testForEngenderMimicWindow() {
+  if (extract0.length === 0 && !mimic_url) { deactivate(); return false; }
+  if (!mimic_url) mimic_url = extract0[0];
+  try {
+    // helper: convert shorts -> watch
+    const shortsToWatch = (u) => {
+      try {
+        const U = new URL(u);
+        const m = U.pathname.match(/\/shorts\/([^\/\?#&]+)/);
+        if (!m) return u;
+        const id = m[1];
+        const t = U.searchParams.get('t') || (U.hash.match(/t=(\d+)/)||[])[1];
+        return `${U.origin}/watch?v=${id}${t?`&t=${t}`:''}`;
+      } catch (e) { return u; }
+    };
+
+    // Normalize shorts early
+    if (mimic_url.includes('/shorts/')) mimic_url = shortsToWatch(mimic_url);
+
+    // A) Handles (/@, /c/)
+    if (mimic_url.includes('/@') || mimic_url.includes('/c/') || mimic_url.includes('/C/')) {
+      if (mimic_url.includes('/c/') || mimic_url.includes('/C/')) mimic_url = mimic_url.replace('/c/','/@').replace('/C/','/@');
+      const orig = mimic_url;
+      const u = new URL(mimic_url);
+      const segs = u.pathname.split('/').filter(Boolean);
+      if (segs.length > 1) mimic_url = u.origin + '/' + segs[0];
+      const resp = await fetch(mimic_url).catch(() => null);
+      if (resp?.ok) {
+        const html = await resp.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const resolvedChannelUrl = resolveChannelUrlFromHandleHtml(html, doc, mimic_url);
+        if (resolvedChannelUrl) {
+          mimic_url = resolvedChannelUrl;
+        } else {
+          console.warn('[MiMic] Manual handle input could not be resolved:', orig);
+        }
+      }
+      if (mimic_url.includes('/channel/')) {
+        const urlObj = new URL(mimic_url);
+        const playlistHtml = await fetchChannelPlaylist(urlObj);
+        if (await extractFirstPlaylistVideo(playlistHtml, channel_id)) return true;
+        deactivate(); return false;
+      }
+      return false;
+    }
+
+    // B) Playlist
+    if (mimic_url.includes('/playlist?') && mimic_url.includes('list=')) {
+      const resp = await fetch(mimic_url).catch(()=>null);
+      if (!resp) { deactivate(); return false; }
+      const html = await resp.text();
+      const listMatch = mimic_url.match(/list=([^&]+)/);
+      if (!listMatch) { deactivate(); return false; }
+      channel_id = listMatch[1];
+      if (await extractFirstPlaylistVideo(html, channel_id)) return true;
+      deactivate(); return false;
+    }
+
+    // C) Watch
+    if (mimic_url.includes('/watch?') && mimic_url.includes('v=')) {
+      const urlObj = new URL(mimic_url);
+      const v = urlObj.searchParams.get('v');
+      if (v === video_id0) { tryNextUrl(mimic_url); return false; }
+      const resp = await fetch(urlObj.href).catch(()=>null);
+      if (!resp) { deactivate(); return false; }
+      const html = await resp.text();
+      if (await checkChannelListsLight(html, mimic_url, true)) return true;
+      mimic_url = urlObj.href;
+      await finishWithVideo();
+      return true;
+    }
+
+    // D) /channel/ and /user/
+    if (mimic_url.includes('/channel/') || mimic_url.includes('/user/')) {
+      const urlObj = new URL(mimic_url);
+      const resp = await fetch(urlObj.href).catch(()=>null);
+      if (!resp) { deactivate(); return false; }
+      const playlistHtml = await fetchChannelPlaylist(urlObj);
+      if (await extractFirstPlaylistVideo(playlistHtml, channel_id)) return true;
+      deactivate(); return false;
+    }
+
+    // E) Vanity attempt
+    const vanityURL = mimic_url.replace('.com/', '.com/@');
+    const headResp = await fetch(vanityURL, { method: 'HEAD' }).catch(()=>null);
+    const status = headResp ? headResp.status : null;
+    if (status === 200) { extract0 = extract0.filter(u=>u!==mimic_url); mimic_url = vanityURL; return await testForEngenderMimicWindow(); }
+    if ([301,302,303,307,308].includes(status)) {
+      const v2 = vanityURL.replace('.com/@', '.com/');
+      if (await fetch(v2, { method: 'HEAD' }).then(r=>r.status===200).catch(()=>false)) {
+        extract0 = extract0.filter(u=>u!==mimic_url); mimic_url = v2; return await testForEngenderMimicWindow();
+      }
+    }
+
+    tryNextUrl(mimic_url);
+    return false;
+  } catch (err) {
+    console.error('[MiMic] testForEngenderMimicWindow error:', err);
+    deactivate();
+    return false;
+  }
+}
+
+async function checkChannelListsLight(html, urlToRemove, isWatch = false) {
+  try {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const canonical = doc.querySelector('head link[rel="canonical"]');
+
+    // If this looks like a watch page, prefer canonical or og:video and finish with video
+    if (isWatch) {
+      const ogVideo = doc.querySelector('meta[property="og:video:url"], meta[name="og:video:url"]');
+      const watchUrl = (ogVideo && ogVideo.content) || (canonical && canonical.href);
+      if (watchUrl && watchUrl.includes('/watch')) {
+        mimic_url = watchUrl;
+        await finishWithVideo();
+        return true;
+      }
+    }
+
+    // Detect playlist via canonical or raw HTML
+    const listMatch = (canonical && canonical.href && canonical.href.match(/list=([^&]+)/)) || html.match(/list=([a-zA-Z0-9_-]+)/);
+    if (listMatch) {
+      const listId = listMatch[1];
+      channel_id = listId;
+      if (await extractFirstPlaylistVideo(html, listId)) return true;
+      return false;
+    }
+
+    // Try to extract a channelId from ytInitialData or page HTML and fetch its playlist
+    const channelIdMatch = html.match(/"channelId":"(UC[0-9A-Za-z_-]{22})"/);
+    if (channelIdMatch) {
+      const id = channelIdMatch[1];
+      channel_id = id;
+      const channelUrl = `https://www.youtube.com/channel/${id}`;
+      const playlistHtml = await fetchChannelPlaylist(new URL(channelUrl)).catch(()=>null);
+      if (playlistHtml && await extractFirstPlaylistVideo(playlistHtml, id)) return true;
+    }
+  } catch (e) {
+    console.error('[MiMic] checkChannelListsLight error:', e);
+  }
+  return false;
+}
+
 // Listen for messages from options page
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'reloadChannels') {
@@ -986,11 +1322,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     loadApprovedChannels(() => {
       console.log('[MiMic] Channels reloaded:', APPROVED_CHANNELS);
     });
+  } else if (message.action === 'openEngenderMimicWindow') {
+    showEngenderMimicWindow();
   }
 });
 
 // --- Navigation detection using YouTube's own yt-navigate-finish event ---
-// This is the same reliable approach used by the yt-watch-tracker extension.
 // YouTube fires yt-navigate-finish on the document after every SPA navigation
 // completes and the page state (including ytInitialPlayerResponse) has updated.
 // We track the last seen video ID to avoid re-processing the same video.

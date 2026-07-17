@@ -1,17 +1,19 @@
 {
   "manifest_version": 3,
   "name": "MiMic - The YouTube Horror Co-Viewer",
-  "version": "1.1.4",
+  "version": "1.2.4",
   "description": "Co-view original YT horror creators' videos from the source links in the descriptions of your favorite YT horror reviewers!",
   "permissions": [
     "tabs",
     "activeTab",
     "scripting",
-    "storage"
+    "storage",
+    "contextMenus"
   ],
   "host_permissions": [
     "https://www.youtube.com/*"
   ],
+  "action": {},
   "background": {
     "service_worker": "background.js"
   },

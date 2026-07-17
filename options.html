@@ -25,11 +25,12 @@
       </section>
 
       <section class="channels-section">
-        <h2>Approved Channels</h2>
+        <h2>YouTube Channel Handle Settings</h2>
+        <h3>Approved Channels</h3>
         <p class="description">
           Enter YouTube channel handles below, one per line. Each handle must start with and contain only one instance of <code>/@</code>.
           <br />
-          Missing your favorite commentator? Send us a note at <a href="mailto:dissemiotic@gmail.com">dissemiotic@gmail.com</a>!
+          The default list consists of YT horror reviewers, commentators, etc., that the developer found during their own scouring of the YT scene. Is the default list missing your favorite commentator? Send us a note at <a href="mailto:dissemiotic@gmail.com">dissemiotic@gmail.com</a>!
         </p>
         
         <div class="textarea-wrapper">
@@ -50,15 +51,52 @@
         
         <div class="status-message" id="statusMessage"></div>
       </section>
-      
       <section class="info-section">
         <h3>How to find a channel handle</h3>
         <ol>
-          <li>Visit the YouTube channel page</li>
-          <li>Look at the URL - it should be in the format: <code>youtube.com/@channelname</code></li>
-          <li>Copy the handle including the <code>/@</code> prefix</li>
-          <li>Paste it into the list above</li>
+          <li>Visit the YouTuber's page</li>
+          <li>Look at the page's URL - it should be in the format <code>youtube.com/@channelname</code></li>
+          <li>Copy the handle portion of the URL, including the <code>/@</code> prefix</li>
+          <li>Paste it into the list above and save!</li>
         </ol>
+      </section>
+<section class="exclusions-section">
+<h3>Excluded Channel Handles</h3>
+<p class="description">
+Some default approved channels often link to their friends, editors, and frequent contributors in their video descriptions. To allow the extension to better serve the subjects of approved channels' commentary/review/etc., we assigned these ancillary handles to be excluded from regular processing. <em>Inclusion on the exclusion list is not a judgment or evaluation as to the quality or content of a channel, we promise.</em>
+</p>
+  <button class="exclusions-toggle" id="exclusionsToggle" aria-expanded="false" aria-controls="exclusionsDrawer">
+          <span>List of hardcoded exclusions</span>
+          <span class="exclusions-chevron">&#9654;</span>
+        </button>
+        <div class="exclusions-drawer" id="exclusionsDrawer" hidden>
+          <table class="exclusions-table">
+            <tbody>
+              <tr><td><a href="https://www.youtube.com/@mistagg?sub_confirmation=1" target="_blank">/@mistagg</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@operatordrewski?sub_confirmation=1" target="_blank">/@operatordrewski</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@papameat?sub_confirmation=1" target="_blank">/@papameat</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@dvmegirl?sub_confirmation=1" target="_blank">/@dvmegirl</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@lucyfromtheinternet?sub_confirmation=1" target="_blank">/@lucyfromtheinternet</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@elvandubz?sub_confirmation=1" target="_blank">/@elvandubz</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@creeppodcast?sub_confirmation=1" target="_blank">/@creeppodcast</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@theweirdbible?sub_confirmation=1" target="_blank">/@theweirdbible</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@all-bonesjones?sub_confirmation=1" target="_blank">/@all-bonesjones</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@sodajump?sub_confirmation=1" target="_blank">/@sodajump</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@harruwu?sub_confirmation=1" target="_blank">/@harruwu</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@projectemortal?sub_confirmation=1" target="_blank">/@projectemortal</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@emortalmarcusvods?sub_confirmation=1" target="_blank">/@emortalmarcusvods</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@suwuonyt?sub_confirmation=1" target="_blank">/@suwuonyt</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@nationalfreak?sub_confirmation=1" target="_blank">/@nationalfreak</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@hadenleef?sub_confirmation=1" target="_blank">/@hadenleef</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@a24?sub_confirmation=1" target="_blank">/@a24</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@zunclezeff?sub_confirmation=1" target="_blank">/@zunclezeff</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@_iansav?sub_confirmation=1" target="_blank">/@_iansav</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@gobliniumthe?sub_confirmation=1" target="_blank">/@gobliniumthe</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@seedbutterclips?sub_confirmation=1" target="_blank">/@seedbutterclips</a></td></tr>
+              <tr><td><a href="https://www.youtube.com/@corporealsister?sub_confirmation=1" target="_blank">/@corporealsister</a></td></tr>
+            </tbody>
+          </table>
+        </div>
       </section>
     </main>
   </div>

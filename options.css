@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   background: gray;
   border-radius: 12px;
@@ -262,6 +262,76 @@ code {
 
 .toggle-switch input:checked + .toggle-track::after {
   transform: translateX(20px);
+}
+
+.exclusions-section {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.exclusions-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 20px;
+  background: #2a2a2a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  user-select: none;
+}
+
+.exclusions-toggle:hover {
+  background: #3a3a3a;
+}
+
+.exclusions-toggle[aria-expanded="true"] {
+  border-radius: 8px 8px 0 0;
+}
+
+.exclusions-chevron {
+  font-size: 11px;
+  transition: transform 0.25s;
+  display: inline-block;
+}
+
+.exclusions-toggle[aria-expanded="true"] .exclusions-chevron {
+  transform: rotate(90deg);
+}
+
+.exclusions-drawer {
+  background: #1e1e1e;
+  border-radius: 0 0 8px 8px;
+  padding: 12px 20px;
+  overflow-x: auto;
+}
+
+.exclusions-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: auto;
+}
+
+.exclusions-table td {
+  padding: 6px 16px 6px 0;
+  white-space: nowrap;
+  font-size: 13px;
+  font-family: 'Courier New', monospace;
+}
+
+.exclusions-table a {
+  color: #a78bfa;
+  text-decoration: none;
+}
+
+.exclusions-table a:hover {
+  text-decoration: underline;
+  color: #c4b5fd;
 }
 
 .info-section {

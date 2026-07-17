@@ -192,10 +192,10 @@
     // userWantsPaused is latched so the setInterval safety net does not
     // immediately restart the video.
     // -------------------------------------------------------------------------
-    chrome.runtime.onMessage.addListener((message) => {
-      if (message.action === 'mimicForcePause') {
+    window.addEventListener('message', (event) => {
+      if (event.source === window && event.data && event.data.action === 'mimicForcePause') {
         console.log('[MiMic Keep-Playing] Force-pause received — pausing auto-advanced video');
-        userWantsPaused = true; // latch so the safety net does not restart it
+        userWantsPaused = true;
         originalPause();
       }
     });
